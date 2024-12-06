@@ -45,51 +45,63 @@ def setup_commands(app):
         "https://res.cloudinary.com/dd0wschpy/image/upload/v1733522394/20231120-WEB-Lasanga-6422_ebwupb.webp",
         "https://res.cloudinary.com/dd0wschpy/image/upload/v1733522393/65a016f48ab83_n25azc.jpg"
     ]
+
     product_types = ['Ejecutivo', 'Bebidas', 'Minutas']
 
-    name_subj = ['Milanesa', 'Pasta', 'Lasagna', 'Pizza', 'Ensalada', 'Hamburguesa', 'Empanadas', 'Tarta', 'Sushi', 'Wok']
-    name_compl = ['de carne', 'de pollo', 'de verdura', 'de jamon y queso', 'de atun', 'de salmon', 'de espinaca', 'de calabaza', 'de berenjena', 'de zapallitos']
-
-    descriptions = [
-        f'{random.choice(name_subj)} {random.choice(name_compl)} con guarnición de {random.choice(["papas fritas", "ensalada", "arroz", "puré"])}',
-        f'{random.choice(name_subj)} con salsa de {random.choice(["tomate", "queso", "blanca", "roquefort"])} y {random.choice(["queso rallado", "jamón", "champiñones", "aceitunas"])}',
-        f'{random.choice(name_subj)} con {random.choice(["salsa blanca", "salsa roja", "salsa de champiñones", "salsa de espinaca"])} y {random.choice(["tomate", "queso", "jamón", "pollo"])}',
-        f'{random.choice(name_subj)} de {random.choice(["jamón", "morrón", "queso", "anchoas"])}',
-        f'Ensalada de {random.choice(["lechuga", "tomate", "huevo", "zanahoria", "pepino"])}',
-        f'Hamburguesa con {random.choice(["queso", "panceta", "huevo", "cebolla caramelizada"])}',
-        f'Empanadas de {random.choice(["carne", "pollo", "verdura", "jamón y queso"])}',
-        f'Tarta de {random.choice(["jamón y queso", "verdura", "pollo", "calabaza"])}',
-        f'Sushi de {random.choice(["salmón", "atún", "langostinos", "vegetales"])}',
-        f'Wok de {random.choice(["verduras", "pollo", "carne", "camarones"])}'
+    # Nombres predefinidos para productos
+    product_templates = [
+        ("Milanesa", ["de carne", "de pollo", "napolitana", "a la suiza"]),
+        ("Pasta", ["con salsa blanca", "a la bolognesa", "con pesto", "a la carbonara"]),
+        ("Pizza", ["muzzarella", "napolitana", "de jamón y morrones", "fugazzeta"]),
+        ("Hamburguesa", ["completa", "con queso y bacon", "doble carne", "vegana"]),
+        ("Ensalada", ["César", "rusa", "mixta", "de quinoa"]),
     ]
+
+    # Descripciones coherentes
+    def generate_description(name, type, details):
+        descriptions = [
+            f"{name} {details} con guarnición de {random.choice(['papas fritas', 'ensalada', 'puré', 'arroz'])}.",
+            f"{name} {details} acompañada de una bebida a elección.",
+            f"{name} {details}, ideal para disfrutar con amigos.",
+            f"{name} {details} preparada con ingredientes frescos y seleccionados."
+        ]
+        return random.choice(descriptions)
+
+
     def insert_random_product():
-        name = f'{random.choice(name_subj)} {random.choice(name_compl)}'
-        description = random.choice(descriptions)
-        price = round(random.uniform(150.0, 500.0), 2)
-        image = random.choice(images)
-        type = random.choice(product_types)
+        # Seleccionar un producto base
+        product_base = random.choice(product_templates)
+        name_base = product_base[0]
+        detail = random.choice(product_base[1])
+        name = f"{name_base} {detail}"
 
         if check_name_already_exists(name):
-            print(f'Product {name} already exists. Skipping...')
+            print(f'Product "{name}" already exists. Skipping...')
             return False
 
+        description = generate_description(name, "food", detail)
+        image = random.choice(images)
+        type = random.choice(product_types)
+        
         new_product = Product(
             type=type,
             name=name,
             description=description,
-            stock=random.randint(1, 50),
+            stock=random.randint(10, 100),  # Stock más realista
             image=image,
         )
 
         db.session.add(new_product)
         db.session.commit()
+        print(f'Product "{name}" added successfully.')
         return True
 
     @app.cli.command("populate-products")
     def insert_random_products():
         count = 0
-        while count < 10:
+        total_products = 10
+        while count < total_products:
             if insert_random_product():
                 count += 1
-                print(f'Product {count} created.')
+                print(f'Product {count}/{total_products} created.')
             
