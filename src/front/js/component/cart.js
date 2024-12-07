@@ -42,7 +42,7 @@ const Cart = () => {
                             <div className="panel-title">
                                 <div className="row">
                                     <div className="col-6">
-                                        <p className="fs-4 fw-bold"><i className="fa-solid fa-cart-shopping"></i> Shopping Cart</p>
+                                        <p className="fs-4 fw-bold"><i className="fa-solid fa-cart-shopping"></i>  Shopping Cart</p>
                                     </div>
                                 </div>
                             </div>
