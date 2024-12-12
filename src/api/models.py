@@ -44,6 +44,14 @@ class Product(db.Model):
     # Relationship to orders
     orders = db.relationship("OrderProduct", backref="ordered_product", lazy=True)
 
+    def __init__(self, type, name, description, stock, image, is_active=True):
+        self.type = type
+        self.name = name
+        self.description = description
+        self.is_active = is_active
+        self.stock = stock
+        self.image = image
+
     def __repr__(self):
         return f'<Product {self.name}>'
 
