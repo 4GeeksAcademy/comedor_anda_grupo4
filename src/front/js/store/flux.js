@@ -9,6 +9,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             orders: [],
             order_data: [],
             reserve: [],
+            orderToPay: [],
         },
         actions: {
             // Utility function to make API calls with common headers
@@ -100,20 +101,28 @@ const getState = ({ getStore, getActions, setStore }) => {
                     setStore({ orders: [] });
                 }
             },
-             // Fetch orders
-            getOrders: async () => {
+            
+            getLastOrder: async () => {
                 try {
                     const data = await getActions().apiCall(process.env.BACKEND_URL + "/api/orders");
                     if (data && Array.isArray(data.orders)) {
-                        setStore({ orders: data.orders });
-                        console.log("Fetched products:", data);
+                        // Verifica si el array no está vacío y selecciona la última orden
+                        const lastOrder = data.orders.length > 0 ? data.orders[data.orders.length - 1] : null;
+                        
+                        if (lastOrder) {
+                            setStore({ orderToPay: [lastOrder] });
+                            console.log("Last order fetched and saved:", lastOrder);
+                        } else {
+                            console.warn("No orders found in response.");
+                            setStore({ orderToPay: [] });
+                        }
                     } else {
                         console.error("Unexpected response format:", data);
-                        setStore({ orders: [] });
+                        setStore({ orderToPay: [] });
                     }
                 } catch (error) {
-                    console.error("Error fetching orders:", error);
-                    setStore({ orders: [] });
+                    console.error("Error fetching last order:", error);
+                    setStore({ orderToPay: [] });
                 }
             },
 

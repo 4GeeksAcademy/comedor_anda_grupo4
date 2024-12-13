@@ -98,14 +98,22 @@ const ProductCO = () => {
                                     <button
                                         type="button"
                                         className="btn btn-success mb-2"
-                                        onClick={() => actions.setOrder()}
+                                        onClick={async () => {
+                                            await actions.setOrder();
+                                            await actions.getLastOrder();
+                                        }}
+                                        
                                     >
                                         Pagar en Efectivo
                                     </button>
                                     <button
                                         type="button"
                                         className="btn btn-success mb-2"
-                                        onClick={() => actions.setOrder()}
+                                        onClick={async () => {
+                                            await actions.setOrder();
+                                            await actions.getLastOrder();
+                                        }}
+                                        
                                     >
                                         Mercado Pago
                                     </button>
