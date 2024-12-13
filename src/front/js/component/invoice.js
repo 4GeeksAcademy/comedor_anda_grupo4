@@ -55,54 +55,10 @@ const Invoice = () => {
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-2 text-center">Administracion</h1>
+      <h1 className="mb-2 text-center">Detalle de Pago</h1>
 
       {/* Action and Search Section */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 p-3">
-        <div className="d-flex flex-wrap mb-3 mb-md-0">
-          <div className="dropdown me-2">
-            <button
-              className="btn btn-secondary dropdown-toggle"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Contenidos
-            </button>
-            <ul className="dropdown-menu">
-              <li>
-                <button className="dropdown-item" onClick={() => setCurrentView("orders")}>
-                  Ordenes
-                </button>
-              </li>
-              <li>
-                <button className="dropdown-item" onClick={() => setCurrentView("items")}>
-                  Items menu
-                </button>
-              </li>
-            </ul>
-          </div>
-          <form className="d-flex justify-content-start" role="search" onSubmit={(e) => e.preventDefault()}>
-            <input
-              className="form-control me-2"
-              type="search"
-              placeholder="Buscar"
-              aria-label="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button className="btn btn-primary" type="submit">Buscar</button>
-          </form>
-        </div>
-        <div className="d-flex">
-          <Link to="/add/menu">
-            <button className="btn btn-primary me-2">Añadir Menu</button>
-          </Link>
-          <Link to="/menu">
-            <button className="btn btn-primary">Compra Menu</button>
-          </Link>
-        </div>
-      </div>
+      
 
       {/* Display message */}
       {message && (
@@ -114,7 +70,6 @@ const Invoice = () => {
       {/* Conditionally Render Content */}
       {currentView === "orders" ? (
         <div className="table-responsive mt-3">
-          <h2>Ordenes</h2>
           <table className="table table-secondary table-striped">
             <thead>
               <tr>

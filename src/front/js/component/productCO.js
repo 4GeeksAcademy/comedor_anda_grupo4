@@ -3,8 +3,15 @@ import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
 import "../../styles/cart.css"
 
-const ProductCO = () => {
+const ProductCO = ({ onPayClick }) => {
     const { store, actions } = useContext(Context);
+
+    const handlePaymentClick = async () => {
+        await actions.setOrder();
+        await actions.getLastOrder();
+        // Llamar a la función pasada desde Checkout
+        onPayClick();
+    };
 
     const handleQuantityChange = (index, value) => {
         const updatedCart = store.cart.map((item, idx) => {
@@ -98,10 +105,7 @@ const ProductCO = () => {
                                     <button
                                         type="button"
                                         className="btn btn-success mb-2"
-                                        onClick={async () => {
-                                            await actions.setOrder();
-                                            await actions.getLastOrder();
-                                        }}
+                                        onClick={handlePaymentClick}
                                         
                                     >
                                         Pagar en Efectivo
@@ -109,10 +113,7 @@ const ProductCO = () => {
                                     <button
                                         type="button"
                                         className="btn btn-success mb-2"
-                                        onClick={async () => {
-                                            await actions.setOrder();
-                                            await actions.getLastOrder();
-                                        }}
+                                        onClick={handlePaymentClick}
                                         
                                     >
                                         Mercado Pago
