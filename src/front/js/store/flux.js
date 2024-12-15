@@ -8,7 +8,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             cart: [],
             orders: [],
             order_data: [],
-            reserve: [],
+            reservas: JSON.parse(localStorage.getItem("reservas")) || [],  // Initialize reservas from localStorage or empty array
         },
         actions: {
             // Utility function to make API calls with common headers
@@ -65,7 +65,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     setStore({
                         token: data.token,
                         user_type: data.user_type,
-                        error: null, // Clear any existing error
+                        error: null, 
                     });
             
                     console.log("Session storage updated and state set.");
@@ -101,7 +101,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     const data = await getActions().apiCall(process.env.BACKEND_URL + "/api/orders");
                     if (data && Array.isArray(data.orders)) {
                         setStore({ orders: data.orders });
-                        console.log("Fetched products:", data);
                     } else {
                         console.error("Unexpected response format:", data);
                         setStore({ orders: [] });
@@ -109,56 +108,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 } catch (error) {
                     console.error("Error fetching orders:", error);
                     setStore({ orders: [] });
-                }
-            },
-             // Fetch orders
-            getOrders: async () => {
-                try {
-                    const data = await getActions().apiCall(process.env.BACKEND_URL + "/api/orders");
-                    if (data && Array.isArray(data.orders)) {
-                        setStore({ orders: data.orders });
-                        console.log("Fetched products:", data);
-                    } else {
-                        console.error("Unexpected response format:", data);
-                        setStore({ orders: [] });
-                    }
-                } catch (error) {
-                    console.error("Error fetching orders:", error);
-                    setStore({ orders: [] });
-                }
-            },
-
-            addReserve: async (reservas) => {
-                const token=getStore().token
-                try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/reserve", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                         },
-                        body:JSON.stringify(reservas)
-                    });
-                    console.log(response)
-                } catch (error) {
-                    console.error("Error fetching reserve:", error);
-                    setStore({ reserve: [] });
-                }
-            },
-
-            getReserves: async () => {
-                try {
-                    // Use the existing apiCall utility to fetch reserves
-                    const data = await getActions().apiCall(`${process.env.BACKEND_URL}/api/reserve`);
-                    // Check if the response is in the expected format
-                    if (data && Array.isArray(data.Reserve)) {
-                        setStore({ reserve: data.Reserve }); // Update the store with the fetched reserves
-                    } else {
-                        console.error("Unexpected response format for reserves:", data);
-                        setStore({ reserve: [] });
-                    }
-                } catch (error) {
-                    console.error("Error fetching reserves:", error);
-                    setStore({ reserve: [] }); // Clear reserves on error
                 }
             },
 
@@ -200,7 +149,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     // Verifica si la solicitud fue exitosa
                     if (response.ok) {
                         const data = await response.json();
-                        console.log(data.msg);
             
                         // Actualiza el estado del producto en la lista
                         const updatedProducts = store.products.map((product) => {
@@ -252,7 +200,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     }
             
                     const data = await response.json();
-                    console.log("Order created successfully:", data);
             
                     // Save the detailed order data in the store
                     setStore({ order_data: data, cart: [] });
@@ -305,7 +252,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 const updatedCart = [...store.cart];
                 setStore({ cart: updatedCart });
                 localStorage.setItem("cart", JSON.stringify(updatedCart));
-                console.log("Cart updated:", updatedCart);
             },
             // Función para actualizar el carrito
             setCart: updatedCart => {
@@ -325,6 +271,71 @@ const getState = ({ getStore, getActions, setStore }) => {
                 setStore({ cart: updatedCart });
                 localStorage.setItem("cart", JSON.stringify(updatedCart));
             },
+
+            setReservas: (newReservas) => {
+                setStore({ reservas: newReservas });
+                localStorage.setItem("reservas", JSON.stringify(newReservas));
+            },
+
+            fetchReservas: async () => {
+                try {
+                  const data = await getActions().apiCall(process.env.BACKEND_URL + "/api/reserve");
+                  console.log("Fetched reservas:", data); // Debug log
+                  if (data && data.Reserve) {
+                    setStore({ reservas: data.Reserve }); // Update store with data.Reserve
+                    localStorage.setItem("reservas", JSON.stringify(data.Reserve)); // Sync with localStorage
+                  } else {
+                    setStore({ reservas: [] }); // If data is empty or undefined, use an empty array
+                  }
+                } catch (error) {
+                  console.error("Error fetching reservas:", error);
+                  setStore({ reservas: [] }); // Fallback to empty array in case of an error
+                }
+              },
+              
+            // Add a new reserva
+            addReserva: async (nuevaReserva) => {
+                try {
+                    const data = await getActions().apiCall(
+                        process.env.BACKEND_URL + "/api/reserve",
+                        {
+                            method: "POST",
+                            body: JSON.stringify(nuevaReserva),
+                        }
+                    );
+                    setStore({ reservas: [...getStore().reservas, data.Reserve] });
+                } catch (error) {
+                    console.error("Error adding reserva:", error);
+                }
+            },
+
+            deleteReserva: async (id) => {
+                const store = getStore();
+                try {
+                    // Send DELETE request to backend API
+                    const response = await fetch( process.env.BACKEND_URL + `/api/reserve/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${store.token}`, // Include token if needed
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to delete reserva from backend");
+                    }
+
+                    // If successful, update the store and localStorage
+                    const updatedReservas = store.reservas.filter((reserva) => reserva.id !== id);
+                    setStore({ reservas: updatedReservas });
+                    localStorage.setItem("reservas", JSON.stringify(updatedReservas));
+                    console.log("Reserva deleted:", id);
+                } catch (error) {
+                    console.error("Error deleting reserva:", error);
+                }
+            },
+            
+                
+            
             getMessage: async () => {
                 try {
                     const data = await getActions().apiCall(process.env.BACKEND_URL + "/api/hello");

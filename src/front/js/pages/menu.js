@@ -8,7 +8,7 @@ export const Menu = () => {
 
     useEffect(() => {
         actions.getProducts();
-    }, []);
+    }, [actions]);
 
     // Categorías de productos
     const categories = [
@@ -17,15 +17,24 @@ export const Menu = () => {
         { type: "Bebidas", title: "Bebidas", color: "info" },
     ];
 
+    // Check if store.products exists and is an array
+    const products = Array.isArray(store.products) ? store.products : [];
+
     return (
-        <div className="container-fluid my-5">
+        <div className="container-fluid my-5"
+            
+        >
             <div className="row">
                 {/* Sección de Productos */}
                 <div className="col-lg-8">
                     {categories.map((category, idx) => {
-                        const filteredProducts = store.products.filter(
-                            (product) => product.type === category.type
+                        const filteredProducts = products.filter(
+                            (product) =>
+                                product.type === category.type && product.is_active === true // Only active products
                         );
+
+                        // Only render the category section if there are active products
+                        if (filteredProducts.length === 0) return null;
 
                         return (
                             <div className="mb-5" key={idx}>
@@ -35,30 +44,24 @@ export const Menu = () => {
                                     </div>
                                 </div>
                                 <div className="row g-4">
-                                    {filteredProducts.length > 0 ? (
-                                        filteredProducts.map((product, index) => (
-                                            <div className="col-sm-6 col-md-4" key={index}>
-                                                <div
-                                                    className="card shadow-sm h-100 border-0"
-                                                    style={{
-                                                        transition: "transform 0.3s",
-                                                    }}
-                                                    onMouseEnter={(e) =>
-                                                        (e.currentTarget.style.transform = "scale(1.05)")
-                                                    }
-                                                    onMouseLeave={(e) =>
-                                                        (e.currentTarget.style.transform = "scale(1)")
-                                                    }
-                                                >
-                                                    <Card item={product} />
-                                                </div>
+                                    {filteredProducts.map((product, index) => (
+                                        <div className="col-sm-6 col-md-4" key={index}>
+                                            <div
+                                                className="card shadow-sm h-100 border-0"
+                                                style={{
+                                                    transition: "transform 0.3s",
+                                                }}
+                                                onMouseEnter={(e) =>
+                                                    (e.currentTarget.style.transform = "scale(1.05)")
+                                                }
+                                                onMouseLeave={(e) =>
+                                                    (e.currentTarget.style.transform = "scale(1)")
+                                                }
+                                            >
+                                                <Card item={product} />
                                             </div>
-                                        ))
-                                    ) : (
-                                        <p className="text-muted text-center">
-                                            No products available for this category
-                                        </p>
-                                    )}
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         );

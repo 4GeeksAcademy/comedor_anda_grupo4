@@ -26,8 +26,6 @@ export const Navbar = () => {
     }, []);
 
     let location = useLocation();
-    console.log (location.pathname);
-    console.log(store.user_type);
     
         useEffect(() => {
             if (store.user_type === "false" && location.pathname == "/dashboard/cocina" ){
