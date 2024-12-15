@@ -369,11 +369,11 @@ def get_reserve():
 def delete_reserves(id):
     global reserve
     # Find the reservation with the given ID
-    reservation_to_delete = next((r for r in reserve if r["id"] == id), None)
+    reservation_to_delete = next((r for r in reserves if r["id"] == id), None)
     
     if reservation_to_delete:
         # Remove it from the list
-        reserve = [r for r in reserve if r["id"] != id]
+        reserves = [r for r in reserves if r["id"] != id]
         return jsonify({"message": "Reservation deleted successfully", "id": id}), 200
     else:
         # Reservation not found
